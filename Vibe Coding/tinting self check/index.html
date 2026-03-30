@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>틴팅 셀프 체크 — THE SMITH</title>
+  <meta name="description" content="나에게 맞는 틴팅필름 농도를 확인해보세요">
+  <meta name="theme-color" content="#FFFFFF">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='80'>🪟</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+
+  <style>
+  :root {
+    --bg:      #FFFFFF;
+    --bg-2:    #F7F7FB;
+    --bg-3:    #EFEFF5;
+    --line:    #E2E2EC;
+    --line-2:  #CECEDE;
+    --muted:   #9090AC;
+    --soft:    #606080;
+    --body:    #303050;
+    --loud:    #141428;
+    --black:   #06060E;
+    --accent:  #1A1AFF;
+    --accent-dim: rgba(26,26,255,.08);
+    --green:   #00CC66;
+    --green-dim: rgba(0,204,102,.08);
+    --pink:    #FF2D78;
+    --amber:   #FF9900;
+    --font-d: 'Space Grotesk', sans-serif;
+    --font-m: 'JetBrains Mono', monospace;
+    --ease:   cubic-bezier(.25,.46,.45,.94);
+    --spring: cubic-bezier(.34,1.56,.64,1);
+    --gutter: clamp(20px, 5vw, 64px);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; color-scheme: light; }
+  body {
+    background: var(--bg); color: var(--body);
+    font-family: var(--font-d); font-size: 14px;
+    line-height: 1.6; overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; border: none; background: none; cursor: pointer; }
+
+  #prog { position: fixed; top: 0; left: 0; height: 2px; width: 0; background: var(--accent); z-index: 1000; transition: width .1s; }
+
+  .wrap { max-width: 680px; margin: 0 auto; padding: 0 var(--gutter); }
+
+  /* BACK */
+  .back-bar { padding: 20px 0 0; }
+  .back-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-family: var(--font-m); font-size: 11px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted);
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 9px 16px; transition: all .18s;
+  }
+  .back-btn:hover { color: var(--black); border-color: var(--black); background: var(--bg-2); }
+
+  /* HEADER */
+  header { padding: 48px 0 40px; text-align: center; }
+  .header-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-m); font-size: 10px; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--muted);
+    border: 1px solid var(--line); border-radius: 99px;
+    padding: 5px 14px; margin-bottom: 20px;
+  }
+  .badge-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1);}50%{opacity:.3;transform:scale(.6);} }
+  .header-title { font-size: clamp(28px, 5vw, 48px); font-weight: 800; letter-spacing: -.04em; color: var(--black); margin-bottom: 12px; line-height: 1.1; }
+  .header-sub { font-family: var(--font-m); font-size: 12px; color: var(--muted); }
+
+  /* STEP INDICATOR */
+  .steps {
+    display: flex; align-items: center; justify-content: center; gap: 0;
+    margin-bottom: 36px;
+  }
+  .step-item {
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--font-m); font-size: 10px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted);
+    transition: color .3s;
+  }
+  .step-item.active { color: var(--accent); }
+  .step-item.done { color: var(--green); }
+  .step-num {
+    width: 24px; height: 24px; border-radius: 50%;
+    border: 1.5px solid var(--line-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; color: var(--muted);
+    transition: all .3s var(--spring); flex-shrink: 0;
+  }
+  .step-item.active .step-num { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+  .step-item.done .step-num { border-color: var(--green); background: var(--green-dim); color: var(--green); }
+  .step-line { width: 40px; height: 1px; background: var(--line-2); margin: 0 8px; flex-shrink: 0; }
+
+  /* SECTION CARD */
+  .section-card {
+    background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 20px; padding: 36px; margin-bottom: 20px;
+    display: none;
+  }
+  .section-card.active { display: block; animation: fadeUp .4s var(--ease) both; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;} }
+
+  .section-label {
+    font-family: var(--font-m); font-size: 9px; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 10px;
+  }
+  .section-q {
+    font-size: 18px; font-weight: 700; letter-spacing: -.02em;
+    color: var(--black); margin-bottom: 6px;
+  }
+  .section-hint { font-size: 12px; color: var(--muted); margin-bottom: 28px; }
+
+  /* OPTION GRID */
+  .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .opt-grid.single-col { grid-template-columns: 1fr; }
+
+  .opt-card {
+    display: flex; align-items: flex-start; gap: 14px;
+    padding: 18px; border-radius: 14px;
+    border: 1.5px solid var(--line);
+    background: var(--bg); cursor: pointer;
+    transition: all .2s var(--ease);
+    text-align: left;
+  }
+  .opt-card:hover { border-color: var(--line-2); background: var(--bg-3); }
+  .opt-card.on { border-color: var(--accent); background: var(--accent-dim); }
+  .opt-card.on .opt-icon-wrap { background: var(--accent-dim); border-color: rgba(26,26,255,.2); }
+  .opt-card.on .opt-title { color: var(--accent); }
+
+  .opt-icon-wrap {
+    width: 40px; height: 40px; border-radius: 10px; flex-shrink: 0;
+    background: var(--bg-3); border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; transition: all .2s;
+  }
+  .opt-text { flex: 1; }
+  .opt-title { font-size: 14px; font-weight: 700; color: var(--loud); letter-spacing: -.01em; margin-bottom: 3px; transition: color .2s; }
+  .opt-desc { font-size: 11px; color: var(--muted); line-height: 1.5; }
+
+  /* CHECK mark for multi */
+  .opt-check {
+    width: 18px; height: 18px; border-radius: 5px; flex-shrink: 0;
+    border: 1.5px solid var(--line-2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; color: transparent; margin-top: 1px;
+    transition: all .2s var(--spring);
+  }
+  .opt-card.on .opt-check { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* NAV BUTTONS */
+  .nav-row { display: flex; gap: 10px; margin-top: 28px; }
+  .btn-prev {
+    padding: 13px 24px; border-radius: 12px;
+    font-size: 14px; font-weight: 600; color: var(--muted);
+    border: 1.5px solid var(--line); transition: all .18s;
+    display: none;
+  }
+  .btn-prev.show { display: block; }
+  .btn-prev:hover { color: var(--black); border-color: var(--black); }
+  .btn-next {
+    flex: 1; padding: 13px 24px; border-radius: 12px;
+    font-size: 14px; font-weight: 700; color: #fff;
+    background: var(--black); transition: all .2s var(--spring);
+    opacity: .35; pointer-events: none;
+  }
+  .btn-next.active { opacity: 1; pointer-events: auto; }
+  .btn-next:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.15); }
+
+  /* ── CAMERA SECTION ── */
+  #camera-section {
+    background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 20px; padding: 36px; margin-bottom: 20px;
+    display: none;
+  }
+  #camera-section.active { display: block; animation: fadeUp .4s var(--ease) both; }
+
+  .cam-label {
+    font-family: var(--font-m); font-size: 9px; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--green); margin-bottom: 10px;
+  }
+  .cam-title { font-size: 18px; font-weight: 700; letter-spacing: -.02em; color: var(--black); margin-bottom: 6px; }
+  .cam-hint { font-size: 12px; color: var(--muted); margin-bottom: 24px; }
+
+  .cam-box {
+    position: relative; border-radius: 14px; overflow: hidden;
+    background: var(--black); aspect-ratio: 4/3;
+    border: 1px solid var(--line-2);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
+  }
+  #cam-video {
+    width: 100%; height: 100%; object-fit: cover; display: block;
+  }
+  #cam-overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,0);
+    transition: background .3s;
+    pointer-events: none;
+  }
+  .cam-placeholder {
+    display: flex; flex-direction: column; align-items: center; gap: 12px;
+    color: var(--muted); padding: 40px;
+    position: absolute; inset: 0; justify-content: center;
+  }
+  .cam-placeholder-icon { font-size: 40px; opacity: .4; }
+  .cam-placeholder-text { font-family: var(--font-m); font-size: 11px; letter-spacing: .08em; text-align: center; opacity: .6; }
+
+  /* density badge on cam */
+  .cam-density-badge {
+    position: absolute; top: 14px; right: 14px;
+    background: rgba(0,0,0,.6); color: #fff;
+    font-family: var(--font-m); font-size: 12px; font-weight: 700;
+    letter-spacing: .06em; border-radius: 8px;
+    padding: 6px 12px; pointer-events: none;
+    display: none;
+  }
+
+  /* START CAM BTN */
+  #start-cam-btn {
+    width: 100%; padding: 14px; border-radius: 12px;
+    background: var(--black); color: #fff;
+    font-size: 14px; font-weight: 700; letter-spacing: -.01em;
+    transition: all .2s var(--spring); margin-bottom: 20px; display: block;
+  }
+  #start-cam-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.15); }
+  #start-cam-btn.hidden { display: none; }
+
+  /* DENSITY SLIDER */
+  .density-controls { display: none; }
+  .density-controls.show { display: block; }
+
+  .density-label-row {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .density-label { font-size: 13px; font-weight: 600; color: var(--loud); }
+  .density-val {
+    font-family: var(--font-m); font-size: 13px; font-weight: 700;
+    color: var(--accent); letter-spacing: .04em;
+  }
+
+  .density-slider-wrap { position: relative; margin-bottom: 16px; }
+  #density-slider {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 6px; border-radius: 3px;
+    background: var(--line-2); outline: none; cursor: pointer;
+  }
+  #density-slider::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--black); cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    transition: transform .15s var(--spring);
+  }
+  #density-slider::-webkit-slider-thumb:hover { transform: scale(1.2); }
+
+  .density-presets {
+    display: flex; gap: 6px; flex-wrap: wrap;
+  }
+  .dp-btn {
+    font-family: var(--font-m); font-size: 10px; letter-spacing: .08em;
+    color: var(--soft); border: 1px solid var(--line);
+    border-radius: 6px; padding: 5px 12px; transition: all .15s;
+  }
+  .dp-btn:hover { color: var(--black); border-color: var(--black); }
+  .dp-btn.on { background: var(--black); color: #fff; border-color: var(--black); }
+
+  /* ── RESULT SECTION ── */
+  #result-section {
+    background: var(--bg-2); border: 1px solid var(--line);
+    border-radius: 20px; padding: 36px; margin-bottom: 20px;
+    display: none;
+  }
+  #result-section.active { display: block; animation: fadeUp .4s var(--ease) both; }
+
+  .result-label {
+    font-family: var(--font-m); font-size: 9px; letter-spacing: .18em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+  }
+  .result-title { font-size: 18px; font-weight: 700; letter-spacing: -.02em; color: var(--black); margin-bottom: 24px; }
+
+  /* summary chips */
+  .result-summary {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px;
+  }
+  .rs-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--font-m); font-size: 10px; letter-spacing: .06em;
+    color: var(--body); background: var(--bg-3);
+    border: 1px solid var(--line); border-radius: 99px;
+    padding: 5px 12px;
+  }
+  .rs-chip-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+
+  /* coming soon */
+  .coming-soon {
+    text-align: center; padding: 48px 20px;
+    border: 1.5px dashed var(--line-2); border-radius: 14px;
+  }
+  .cs-icon { font-size: 40px; margin-bottom: 16px; opacity: .4; }
+  .cs-title { font-size: 18px; font-weight: 700; color: var(--loud); letter-spacing: -.02em; margin-bottom: 8px; }
+  .cs-sub { font-family: var(--font-m); font-size: 11px; color: var(--muted); }
+
+  /* RESTART */
+  .restart-row { text-align: center; margin-top: 20px; }
+  #restart-btn {
+    font-family: var(--font-m); font-size: 11px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted);
+    border: 1px solid var(--line); border-radius: 8px;
+    padding: 10px 24px; transition: all .18s;
+  }
+  #restart-btn:hover { color: var(--black); border-color: var(--black); }
+
+  /* FOOTER */
+  footer { text-align: center; padding: 40px 0 56px; border-top: 1px solid var(--line); margin-top: 48px; }
+  .footer-brand { font-family: var(--font-m); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+  .footer-sub { font-size: 11px; color: var(--muted); margin-top: 4px; opacity: .5; }
+
+  /* RESPONSIVE */
+  @media (max-width: 480px) {
+    .opt-grid { grid-template-columns: 1fr; }
+    .section-card, #camera-section, #result-section { padding: 24px 20px; }
+  }
+  </style>
+</head>
+<body>
+
+<div id="prog"></div>
+
+<div class="wrap">
+
+  <!-- BACK -->
+  <div class="back-bar">
+    <a class="back-btn" href="../../index.html">← PLAYGROUND LAB. 으로 돌아가기</a>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-badge">
+      <span class="badge-dot"></span>
+      CAR · THE SMITH PLAYGROUND
+    </div>
+    <h1 class="header-title">틴팅 셀프 체크</h1>
+    <p class="header-sub">나에게 맞는 틴팅필름 농도를 직접 확인해보세요</p>
+  </header>
+
+  <!-- STEP INDICATOR -->
+  <div class="steps">
+    <div class="step-item active" id="si-1">
+      <span class="step-num" id="sn-1">1</span>
+      <span>운전 시간대</span>
+    </div>
+    <span class="step-line"></span>
+    <div class="step-item" id="si-2">
+      <span class="step-num" id="sn-2">2</span>
+      <span>실내 환경</span>
+    </div>
+    <span class="step-line"></span>
+    <div class="step-item" id="si-3">
+      <span class="step-num" id="sn-3">3</span>
+      <span>농도 체험</span>
+    </div>
+    <span class="step-line"></span>
+    <div class="step-item" id="si-4">
+      <span class="step-num" id="sn-4">4</span>
+      <span>추천 결과</span>
+    </div>
+  </div>
+
+  <!-- STEP 1 : 운전 시간대 -->
+  <div class="section-card active" id="step-1">
+    <p class="section-label">STEP 01</p>
+    <h2 class="section-q">주로 언제 운전하시나요?</h2>
+    <p class="section-hint">주요 운전 시간대를 선택해주세요 (단일 선택)</p>
+
+    <div class="opt-grid">
+      <button class="opt-card" data-step="1" data-val="day" onclick="selectOpt(this)">
+        <div class="opt-icon-wrap">☀️</div>
+        <div class="opt-text">
+          <div class="opt-title">오전 · 주간</div>
+          <div class="opt-desc">햇빛이 강한 낮 시간대<br>자외선 차단이 중요</div>
+        </div>
+      </button>
+      <button class="opt-card" data-step="1" data-val="night" onclick="selectOpt(this)">
+        <div class="opt-icon-wrap">🌙</div>
+        <div class="opt-text">
+          <div class="opt-title">오후 · 야간</div>
+          <div class="opt-desc">저녁~밤 시간대 운전<br>시야 확보가 중요</div>
+        </div>
+      </button>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-prev" id="prev-1">← 이전</button>
+      <button class="btn-next" id="next-1" onclick="goNext(1)">다음 단계 →</button>
+    </div>
+  </div>
+
+  <!-- STEP 2 : 실내 환경 -->
+  <div class="section-card" id="step-2">
+    <p class="section-label">STEP 02</p>
+    <h2 class="section-q">차량 실내 환경을 알려주세요</h2>
+    <p class="section-hint">해당되는 항목을 모두 선택해주세요 (복수 선택 가능)</p>
+
+    <div class="opt-grid single-col">
+      <button class="opt-card" data-step="2" data-val="ambient" onclick="toggleOpt(this)">
+        <div class="opt-icon-wrap">💡</div>
+        <div class="opt-text">
+          <div class="opt-title">엠비언트 라이트 있음</div>
+          <div class="opt-desc">실내 무드등 또는 엠비언트 조명이 장착되어 있어요</div>
+        </div>
+        <span class="opt-check">✓</span>
+      </button>
+      <button class="opt-card" data-step="2" data-val="bright-seat" onclick="toggleOpt(this)">
+        <div class="opt-icon-wrap">🪑</div>
+        <div class="opt-text">
+          <div class="opt-title">시트 컬러 밝음</div>
+          <div class="opt-desc">베이지, 아이보리, 화이트 계열의 밝은 시트</div>
+        </div>
+        <span class="opt-check">✓</span>
+      </button>
+      <button class="opt-card" data-step="2" data-val="dark-seat" onclick="toggleOpt(this)">
+        <div class="opt-icon-wrap">🖤</div>
+        <div class="opt-text">
+          <div class="opt-title">시트 컬러 어두움</div>
+          <div class="opt-desc">블랙, 다크그레이, 네이비 계열의 어두운 시트</div>
+        </div>
+        <span class="opt-check">✓</span>
+      </button>
+    </div>
+
+    <div class="nav-row">
+      <button class="btn-prev show" onclick="goPrev(2)">← 이전</button>
+      <button class="btn-next active" id="next-2" onclick="goNext(2)">농도 체험하기 →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 : 카메라 농도 체험 -->
+  <div id="camera-section" class="active" style="display:none">
+    <p class="cam-label">STEP 03 · 틴팅 농도 체험</p>
+    <h2 class="cam-title">카메라로 농도를 직접 확인해보세요</h2>
+    <p class="cam-hint">카메라를 켜고 슬라이더를 조절해 실제 틴팅 느낌을 체험할 수 있어요</p>
+
+    <!-- camera box -->
+    <div class="cam-box" id="cam-box">
+      <video id="cam-video" autoplay playsinline muted></video>
+      <div id="cam-overlay"></div>
+      <div class="cam-density-badge" id="cam-badge">35%</div>
+      <div class="cam-placeholder" id="cam-placeholder">
+        <div class="cam-placeholder-icon">📷</div>
+        <div class="cam-placeholder-text">카메라 시작 버튼을 눌러<br>틴팅 농도를 체험해보세요</div>
+      </div>
+    </div>
+
+    <button id="start-cam-btn" onclick="startCamera()">📷 카메라 시작하기</button>
+
+    <!-- density controls -->
+    <div class="density-controls" id="density-controls">
+      <div class="density-label-row">
+        <span class="density-label">틴팅 농도</span>
+        <span class="density-val" id="density-display">35%</span>
+      </div>
+      <div class="density-slider-wrap">
+        <input type="range" id="density-slider" min="0" max="90" value="35" step="5" oninput="updateDensity(this.value)">
+      </div>
+      <div class="density-presets">
+        <span style="font-family:var(--font-m);font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-right:4px;align-self:center;">프리셋</span>
+        <button class="dp-btn" onclick="setPreset(15)">15%</button>
+        <button class="dp-btn on" onclick="setPreset(35)">35%</button>
+        <button class="dp-btn" onclick="setPreset(50)">50%</button>
+        <button class="dp-btn" onclick="setPreset(70)">70%</button>
+        <button class="dp-btn" onclick="setPreset(90)">90%</button>
+      </div>
+    </div>
+
+    <div class="nav-row" style="margin-top:28px;">
+      <button class="btn-prev show" onclick="goPrev(3)">← 이전</button>
+      <button class="btn-next active" onclick="goNext(3)">추천 결과 보기 →</button>
+    </div>
+  </div>
+
+  <!-- STEP 4 : 결과 -->
+  <div id="result-section">
+    <p class="result-label">STEP 04 · 추천 결과</p>
+    <h2 class="result-title">나의 틴팅 조건 요약</h2>
+
+    <!-- 선택 요약 -->
+    <div class="result-summary" id="result-chips"></div>
+
+    <!-- 필름 추천 (준비 중) -->
+    <div class="coming-soon">
+      <div class="cs-icon">🔬</div>
+      <div class="cs-title">지금 준비 중입니다.</div>
+      <div class="cs-sub">조건에 맞는 필름 추천 데이터를 준비하고 있어요.<br>곧 업데이트될 예정입니다.</div>
+    </div>
+  </div>
+
+  <div class="restart-row" id="restart-row" style="display:none;">
+    <button id="restart-btn" onclick="restartAll()">← 처음부터 다시하기</button>
+  </div>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <p class="footer-brand">THE SMITH PLAYGROUND LAB</p>
+    <p class="footer-sub">틴팅 셀프 체크 · © 2026</p>
+  </div>
+</footer>
+
+<script>
+/* ── STATE ─────────────────────────────────────────────── */
+const state = {
+  step1: null,       // 'day' | 'night'
+  step2: new Set(),  // 'ambient' | 'bright-seat' | 'dark-seat'
+  camStream: null,
+  density: 35
+};
+
+const STEP_LABELS = {
+  day:        { label: '오전 · 주간', icon: '☀️' },
+  night:      { label: '오후 · 야간', icon: '🌙' },
+  ambient:    { label: '엠비언트 라이트', icon: '💡' },
+  'bright-seat': { label: '밝은 시트', icon: '🪑' },
+  'dark-seat':   { label: '어두운 시트', icon: '🖤' },
+};
+
+/* ── STEP LOGIC ─────────────────────────────────────────── */
+function showStep(n) {
+  document.getElementById('step-1').classList.remove('active');
+  document.getElementById('step-2').classList.remove('active');
+  document.getElementById('camera-section').style.display = 'none';
+  document.getElementById('camera-section').classList.remove('active');
+  document.getElementById('result-section').style.display = 'none';
+  document.getElementById('result-section').classList.remove('active');
+  document.getElementById('restart-row').style.display = 'none';
+
+  if (n === 1) document.getElementById('step-1').classList.add('active');
+  else if (n === 2) document.getElementById('step-2').classList.add('active');
+  else if (n === 3) {
+    document.getElementById('camera-section').style.display = 'block';
+    setTimeout(() => document.getElementById('camera-section').classList.add('active'), 10);
+  }
+  else if (n === 4) {
+    document.getElementById('result-section').style.display = 'block';
+    setTimeout(() => document.getElementById('result-section').classList.add('active'), 10);
+    document.getElementById('restart-row').style.display = 'block';
+    buildResult();
+    stopCamera();
+  }
+
+  updateStepIndicator(n);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateStepIndicator(current) {
+  for (let i = 1; i <= 4; i++) {
+    const si = document.getElementById(`si-${i}`);
+    const sn = document.getElementById(`sn-${i}`);
+    si.classList.remove('active', 'done');
+    if (i < current) { si.classList.add('done'); sn.textContent = '✓'; }
+    else if (i === current) { si.classList.add('active'); sn.textContent = i; }
+    else { sn.textContent = i; }
+  }
+}
+
+/* ── SELECT / TOGGLE ────────────────────────────────────── */
+function selectOpt(btn) {
+  const step = btn.dataset.step;
+  document.querySelectorAll(`.opt-card[data-step="${step}"]`).forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  if (step === '1') {
+    state.step1 = btn.dataset.val;
+    document.getElementById('next-1').classList.add('active');
+  }
+}
+
+function toggleOpt(btn) {
+  btn.classList.toggle('on');
+  const val = btn.dataset.val;
+  state.step2.has(val) ? state.step2.delete(val) : state.step2.add(val);
+}
+
+/* ── NAVIGATION ─────────────────────────────────────────── */
+function goNext(from) {
+  if (from === 1 && !state.step1) return;
+  showStep(from + 1);
+}
+function goPrev(from) {
+  showStep(from - 1);
+}
+
+/* ── CAMERA ─────────────────────────────────────────────── */
+async function startCamera() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 960 } }
+    });
+    state.camStream = stream;
+    const video = document.getElementById('cam-video');
+    video.srcObject = stream;
+    document.getElementById('cam-placeholder').style.display = 'none';
+    document.getElementById('start-cam-btn').classList.add('hidden');
+    document.getElementById('density-controls').classList.add('show');
+    document.getElementById('cam-badge').style.display = 'block';
+    updateDensity(state.density);
+  } catch (e) {
+    document.querySelector('.cam-placeholder-text').textContent = '카메라 접근이 거부되었습니다.\n브라우저 설정에서 카메라 권한을 허용해주세요.';
+  }
+}
+
+function stopCamera() {
+  if (state.camStream) {
+    state.camStream.getTracks().forEach(t => t.stop());
+    state.camStream = null;
+  }
+}
+
+function updateDensity(val) {
+  state.density = parseInt(val);
+  document.getElementById('density-slider').value = val;
+  document.getElementById('density-display').textContent = val + '%';
+  document.getElementById('cam-badge').textContent = val + '%';
+  const opacity = (parseInt(val) / 100) * 0.92;
+  document.getElementById('cam-overlay').style.background = `rgba(0,0,0,${opacity})`;
+  document.querySelectorAll('.dp-btn').forEach(b => {
+    b.classList.toggle('on', parseInt(b.textContent) === parseInt(val));
+  });
+}
+
+function setPreset(val) {
+  updateDensity(val);
+}
+
+/* ── RESULT ─────────────────────────────────────────────── */
+function buildResult() {
+  const chips = [];
+  if (state.step1) chips.push(STEP_LABELS[state.step1]);
+  state.step2.forEach(v => { if (STEP_LABELS[v]) chips.push(STEP_LABELS[v]); });
+  if (chips.length === 0) chips.push({ icon: '—', label: '선택 없음' });
+
+  document.getElementById('result-chips').innerHTML = chips.map(c =>
+    `<span class="rs-chip"><span class="rs-chip-dot"></span>${c.icon} ${c.label}</span>`
+  ).join('');
+}
+
+/* ── RESTART ────────────────────────────────────────────── */
+function restartAll() {
+  state.step1 = null;
+  state.step2.clear();
+  state.density = 35;
+  document.querySelectorAll('.opt-card').forEach(b => b.classList.remove('on'));
+  document.getElementById('next-1').classList.remove('active');
+  document.getElementById('density-controls').classList.remove('show');
+  document.getElementById('cam-placeholder').style.display = 'flex';
+  document.getElementById('start-cam-btn').classList.remove('hidden');
+  document.getElementById('cam-badge').style.display = 'none';
+  document.getElementById('cam-overlay').style.background = 'rgba(0,0,0,0)';
+  updateDensity(35);
+  stopCamera();
+  showStep(1);
+}
+
+/* ── PROGRESS ───────────────────────────────────────────── */
+window.addEventListener('scroll', () => {
+  const dh = document.documentElement.scrollHeight - window.innerHeight;
+  if (dh > 0) document.getElementById('prog').style.width = Math.min(window.scrollY / dh * 100, 100) + '%';
+}, { passive: true });
+</script>
+</body>
+</html>
