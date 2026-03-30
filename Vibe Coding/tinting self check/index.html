@@ -660,7 +660,7 @@ function updateVLT(val) {
   document.getElementById('density-display').textContent = val + '% VLT';
   document.getElementById('cam-badge').textContent = 'VLT ' + val + '%';
   // VLT가 높을수록 overlay 투명하게
-  const opacity = (1 - parseInt(val) / 100) * 0.92;
+  const opacity = (1 - parseInt(val) / 100) * 0.46;
   document.getElementById('cam-overlay').style.background = `rgba(0,0,0,${opacity})`;
   document.querySelectorAll('.dp-btn').forEach(b => {
     b.classList.toggle('on', parseInt(b.dataset.vlt) === parseInt(val));
