@@ -476,7 +476,7 @@
   <div class="hero-body">
     <span class="hero-kicker">
       <span class="hero-kicker-line"></span>
-      VIBE CODING SESSION ARCHIVE
+      THE SMITH & VIBE NINE
       <span class="hero-kicker-line"></span>
     </span>
 
@@ -486,7 +486,7 @@
       <span class="h1-row" id="r3">LAB.</span>
     </h1>
 
-    <p class="hero-sub">바이브코딩으로 구현하는 창의적 웹 경험들을 탐색하세요.</p>
+    <p class="hero-sub">더 스미스에서 개발한 다양한 프로그램을 지금 플레이그라운드에서 만나보세요.</p>
 
     <div class="hero-search-block">
       <div class="hs-bar" id="hs-bar">
@@ -494,12 +494,13 @@
         <input
           id="hero-input"
           type="text"
-          placeholder="프로젝트명, 기술스택, 카테고리 검색…"
+          placeholder="카테고리, 찾고싶은 내용을 검색해보세요."
           autocomplete="off" spellcheck="false"
           aria-label="포트폴리오 검색"
         >
         <button id="hero-clear" aria-label="검색 초기화">✕</button>
       </div>
+      <div class="hs-tags" id="hero-cat-tags"></div>
     </div>
   </div>
 
@@ -688,7 +689,7 @@ function setQ(val, scroll = true) {
 
 function syncTags(val) {
   const q = val.toLowerCase();
-  document.querySelectorAll('.hs-tag, .ts-tag').forEach(t => {
+  document.querySelectorAll('.hs-tag, .ts-tag, #hero-cat-tags .hs-tag').forEach(t => {
     t.classList.toggle('on', (t.dataset.q || '').toLowerCase() === q);
   });
 }
@@ -870,7 +871,29 @@ const ro = new IntersectionObserver(entries => {
 document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
 
 
+/* ── CATEGORY TAGS (hero) ────────────────────────────────── */
+function buildCatTags() {
+  const container = document.getElementById('hero-cat-tags');
+  if (!container) return;
+  const seen = new Set();
+  const cats = DATA.reduce((acc, p) => {
+    if (!seen.has(p.cat)) { seen.add(p.cat); acc.push({ cat: p.cat, label: p.catLabel }); }
+    return acc;
+  }, []);
+  if (cats.length === 0) { container.style.display = 'none'; return; }
+  container.innerHTML = cats.map(c =>
+    `<button class="hs-tag" data-q="${c.cat}">${c.label}</button>`
+  ).join('');
+  container.querySelectorAll('.hs-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      const val = tag.dataset.q;
+      val === currentQ ? setQ('', false) : setQ(val, !!val);
+    });
+  });
+}
+
 /* ── INIT ───────────────────────────────────────────────── */
+buildCatTags();
 render('');
 
 window.addEventListener('load', () => {
