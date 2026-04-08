@@ -373,14 +373,14 @@
 
   /* ── TINTING NOTICE ────────────────────── */
   .s-card-notice {
-    grid-column: 1 / -1;
     background: #06060E;
     border: 1.5px solid #00FF88;
     border-radius: 14px;
     padding: 16px 24px;
-    display: flex;
+    display: none;
     align-items: center;
     gap: 14px;
+    margin-top: 4px;
     box-shadow: 0 0 18px rgba(0,255,136,.2), inset 0 0 28px rgba(0,255,136,.04);
   }
   .s-card-notice-dot {
@@ -552,6 +552,11 @@
 
   <div class="sessions-grid reveal" id="sessions-grid" role="list" aria-label="포트폴리오 세션"></div>
 
+  <div class="s-card-notice" id="tinting-notice">
+    <span class="s-card-notice-dot"></span>
+    <span class="s-card-notice-text">본 체크 페이지는 스마트폰으로 차량에서 실행하세요.</span>
+  </div>
+
   <table class="sessions-list" id="sessions-list" aria-label="포트폴리오 목록">
     <thead class="sl-head">
       <tr>
@@ -620,24 +625,20 @@ let currentQ = '';
 let viewMode = 'grid';
 
 /* ── DOM ───────────────────────────────────────────────── */
-const gridEl    = document.getElementById('sessions-grid');
-const listBody  = document.getElementById('sessions-list-body');
-const listTable = document.getElementById('sessions-list');
-const emptyEl   = document.getElementById('empty-state');
-const esQEl     = document.getElementById('es-q');
-const badge     = document.getElementById('result-badge');
-const heroInput = document.getElementById('hero-input');
-const heroClear = document.getElementById('hero-clear');
+const gridEl       = document.getElementById('sessions-grid');
+const listBody     = document.getElementById('sessions-list-body');
+const listTable    = document.getElementById('sessions-list');
+const emptyEl      = document.getElementById('empty-state');
+const esQEl        = document.getElementById('es-q');
+const badge        = document.getElementById('result-badge');
+const heroInput    = document.getElementById('hero-input');
+const heroClear    = document.getElementById('hero-clear');
+const tintingNotice = document.getElementById('tinting-notice');
 
 /* ── RENDER GRID CARD ───────────────────────────────────── */
 function renderCard(p, q) {
   const t = engine.hl(p.title, q);
   const d = engine.hl(p.desc, q);
-  const notice = p.id === 'tinting-self-check' ? `
-  <div class="s-card-notice">
-    <span class="s-card-notice-dot"></span>
-    <span class="s-card-notice-text">본 체크 페이지는 스마트폰으로 차량에서 실행하세요.</span>
-  </div>` : '';
   return `
   <article class="s-card" data-id="${p.id}" data-url="${p.url}" role="listitem" aria-label="${p.title}">
     <div class="s-card-bg ${p.bg}"></div>
@@ -653,7 +654,7 @@ function renderCard(p, q) {
         ${p.tags.map(tag => `<button class="s-tag" data-tag="${tag}">${tag}</button>`).join('')}
       </div>
     </div>
-  </article>${notice}`;
+  </article>`;
 }
 
 /* ── RENDER LIST ROW (no stack) ─────────────────────────── */
@@ -684,6 +685,7 @@ function render(q = '') {
     listBody.innerHTML = '';
     gridEl.style.display = 'none';
     listTable.classList.remove('on');
+    tintingNotice.style.display = 'none';
     if (q) { emptyEl.classList.add('on'); esQEl.textContent = q; }
     else emptyEl.classList.remove('on');
     return;
@@ -692,6 +694,7 @@ function render(q = '') {
   emptyEl.classList.remove('on');
   gridEl.innerHTML = items.map(p => renderCard(p, q)).join('');
   listBody.innerHTML = items.map(p => renderRow(p, q)).join('');
+  tintingNotice.style.display = items.some(p => p.id === 'tinting-self-check') ? 'flex' : 'none';
   listTable.classList.toggle('on', viewMode === 'list');
   gridEl.style.display = viewMode === 'grid' ? 'grid' : 'none';
 
