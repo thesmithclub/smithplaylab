@@ -371,6 +371,34 @@
   .s-card:hover .s-tag:nth-child(3) { transform: scaleX(1); transition-delay: .11s; }
   .s-tag:hover { color: var(--black); border-color: rgba(6,6,14,.3); }
 
+  /* ── TINTING NOTICE ────────────────────── */
+  .s-card-notice {
+    grid-column: 1 / -1;
+    background: #06060E;
+    border: 1.5px solid #00FF88;
+    border-radius: 14px;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    box-shadow: 0 0 18px rgba(0,255,136,.2), inset 0 0 28px rgba(0,255,136,.04);
+  }
+  .s-card-notice-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    background: #00FF88;
+    box-shadow: 0 0 8px #00FF88, 0 0 18px rgba(0,255,136,.6);
+    animation: neon-blink 2s ease-in-out infinite;
+  }
+  @keyframes neon-blink {
+    0%,100%{opacity:1;box-shadow:0 0 8px #00FF88,0 0 18px rgba(0,255,136,.6);}
+    50%{opacity:.4;box-shadow:0 0 4px #00FF88,0 0 8px rgba(0,255,136,.3);}
+  }
+  .s-card-notice-text {
+    font-family: var(--font-m); font-size: 12px; letter-spacing: .07em;
+    color: #00FF88;
+    text-shadow: 0 0 10px rgba(0,255,136,.65);
+  }
+
   mark.hl {
     background: rgba(136,204,0,.2);
     color: var(--black); border-radius: 3px;
@@ -605,6 +633,11 @@ const heroClear = document.getElementById('hero-clear');
 function renderCard(p, q) {
   const t = engine.hl(p.title, q);
   const d = engine.hl(p.desc, q);
+  const notice = p.id === 'tinting-self-check' ? `
+  <div class="s-card-notice">
+    <span class="s-card-notice-dot"></span>
+    <span class="s-card-notice-text">본 체크 페이지는 스마트폰으로 차량에서 실행하세요.</span>
+  </div>` : '';
   return `
   <article class="s-card" data-id="${p.id}" data-url="${p.url}" role="listitem" aria-label="${p.title}">
     <div class="s-card-bg ${p.bg}"></div>
@@ -620,7 +653,7 @@ function renderCard(p, q) {
         ${p.tags.map(tag => `<button class="s-tag" data-tag="${tag}">${tag}</button>`).join('')}
       </div>
     </div>
-  </article>`;
+  </article>${notice}`;
 }
 
 /* ── RENDER LIST ROW (no stack) ─────────────────────────── */
