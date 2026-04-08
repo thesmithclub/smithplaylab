@@ -339,6 +339,28 @@
   }
   #restart-btn:hover { color: var(--black); border-color: var(--black); }
 
+  /* NEON NOTICE */
+  .neon-notice {
+    display: flex; align-items: center; gap: 14px;
+    background: #06060E; border: 1.5px solid #00FF88;
+    border-radius: 14px; padding: 16px 20px; margin-bottom: 20px;
+    box-shadow: 0 0 18px rgba(0,255,136,.2), inset 0 0 28px rgba(0,255,136,.04);
+  }
+  .neon-notice-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    background: #00FF88;
+    box-shadow: 0 0 8px #00FF88, 0 0 18px rgba(0,255,136,.6);
+    animation: neon-blink 2s ease-in-out infinite;
+  }
+  @keyframes neon-blink {
+    0%,100%{opacity:1;box-shadow:0 0 8px #00FF88,0 0 18px rgba(0,255,136,.6);}
+    50%{opacity:.4;box-shadow:0 0 4px #00FF88,0 0 8px rgba(0,255,136,.3);}
+  }
+  .neon-notice-text {
+    font-family: var(--font-m); font-size: 12px; letter-spacing: .07em;
+    color: #00FF88; text-shadow: 0 0 10px rgba(0,255,136,.65);
+  }
+
   /* FOOTER */
   footer { text-align: center; padding: 40px 0 56px; border-top: 1px solid var(--line); margin-top: 48px; }
   .footer-brand { font-family: var(--font-m); font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
@@ -427,6 +449,11 @@
           <p class="notice-sub">스마트폰의 설정화면에서 스마트폰 화면의 밝기를 조절할 수 있습니다.</p>
         </div>
       </div>
+    </div>
+
+    <div class="neon-notice">
+      <span class="neon-notice-dot"></span>
+      <span class="neon-notice-text">본 체크 페이지는 스마트폰으로 차량에서 실행하세요.</span>
     </div>
 
     <div class="nav-row">
