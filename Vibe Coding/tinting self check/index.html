@@ -467,6 +467,11 @@
     <span class="step-line"></span>
     <div class="step-item" id="si-3">
       <span class="step-num" id="sn-3">3</span>
+      <span>취향 선택</span>
+    </div>
+    <span class="step-line"></span>
+    <div class="step-item" id="si-4">
+      <span class="step-num" id="sn-4">4</span>
       <span>추천 결과</span>
     </div>
   </div>
@@ -543,13 +548,85 @@
 
     <div class="nav-row" style="margin-top:28px;">
       <button class="btn-prev show" onclick="goPrev(2)">← 이전</button>
-      <button class="btn-next active" onclick="goNext(2)">추천 결과 보기 →</button>
+      <button class="btn-next active" onclick="goNext(2)">다음 →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 : 취향 질문 -->
+  <div id="questions-section" style="display:none">
+
+    <!-- Q1 -->
+    <div class="section-card active" id="q-card-1">
+      <p class="section-label">STEP 03 · 취향 선택 · 질문 1/3</p>
+      <h2 class="section-q">어떤 필름을 원하시나요?</h2>
+      <p class="section-hint">반사 여부에 따라 외관 느낌과 실내 온도 차이가 있어요</p>
+      <div class="opt-grid">
+        <div class="opt-card" id="q1-a" onclick="selectQ(1,'반사필름')">
+          <div class="opt-text">
+            <div class="opt-title">반사필름</div>
+            <div class="opt-desc">외부 반사로 프라이버시 보호, 열 차단 효과 우수</div>
+          </div>
+        </div>
+        <div class="opt-card" id="q1-b" onclick="selectQ(1,'비반사필름')">
+          <div class="opt-text">
+            <div class="opt-title">비반사필름</div>
+            <div class="opt-desc">자연스러운 외관, 야간 시인성 우수</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q2 -->
+    <div class="section-card active" id="q-card-2" style="margin-top:12px">
+      <p class="section-label">STEP 03 · 취향 선택 · 질문 2/3</p>
+      <h2 class="section-q">성향을 선택하여 주세요</h2>
+      <p class="section-hint">예산과 품질 사이에서 어떤 가치를 더 중시하시나요?</p>
+      <div class="opt-grid">
+        <div class="opt-card" id="q2-a" onclick="selectQ(2,'가성비')">
+          <div class="opt-text">
+            <div class="opt-title">이왕이면 가성비가 좋지</div>
+            <div class="opt-desc">합리적인 가격으로 충분한 성능</div>
+          </div>
+        </div>
+        <div class="opt-card" id="q2-b" onclick="selectQ(2,'퀄리티')">
+          <div class="opt-text">
+            <div class="opt-title">퀄리티가 최우선</div>
+            <div class="opt-desc">가격보다 성능과 내구성이 중요</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Q3 -->
+    <div class="section-card active" id="q-card-3" style="margin-top:12px">
+      <p class="section-label">STEP 03 · 취향 선택 · 질문 3/3</p>
+      <h2 class="section-q">어떤 시간대 운전을 많이 하시나요?</h2>
+      <p class="section-hint">운전 시간대에 따라 적합한 농도가 달라져요</p>
+      <div class="opt-grid">
+        <div class="opt-card" id="q3-a" onclick="selectQ(3,'주간')">
+          <div class="opt-text">
+            <div class="opt-title">주간</div>
+            <div class="opt-desc">햇빛 차단과 열 차단이 더 중요해요</div>
+          </div>
+        </div>
+        <div class="opt-card" id="q3-b" onclick="selectQ(3,'야간')">
+          <div class="opt-text">
+            <div class="opt-title">야간</div>
+            <div class="opt-desc">시인성 확보가 더 중요해요</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-row" style="margin-top:20px">
+      <button class="btn-prev show" onclick="goPrev(3)">← 이전</button>
+      <button class="btn-next" id="q-next-btn" onclick="goNext(3)">추천 결과 보기 →</button>
     </div>
   </div>
 
   <!-- STEP 4 : 결과 -->
   <div id="result-section">
-    <p class="result-label">STEP 03 · 추천 결과</p>
+    <p class="result-label">STEP 04 · 추천 결과</p>
     <h2 class="result-title">나의 틴팅 조건 요약</h2>
 
     <!-- 선택 요약 -->
@@ -597,7 +674,10 @@
 /* ── STATE ─────────────────────────────────────────────── */
 const state = {
   camStream: null,
-  vlt: 35
+  vlt: 35,
+  q1: null,
+  q2: null,
+  q3: null
 };
 
 /* ── STEP LOGIC ─────────────────────────────────────────── */
@@ -605,21 +685,24 @@ function showStep(n) {
   document.getElementById('step-1').classList.remove('active');
   document.getElementById('camera-section').style.display = 'none';
   document.getElementById('camera-section').classList.remove('active');
+  document.getElementById('questions-section').style.display = 'none';
   document.getElementById('result-section').style.display = 'none';
   document.getElementById('result-section').classList.remove('active');
   document.getElementById('restart-row').style.display = 'none';
 
-  if (n === 1) document.getElementById('step-1').classList.add('active');
-  else if (n === 2) {
+  if (n === 1) {
+    document.getElementById('step-1').classList.add('active');
+  } else if (n === 2) {
     document.getElementById('camera-section').style.display = 'block';
     setTimeout(() => document.getElementById('camera-section').classList.add('active'), 10);
-  }
-  else if (n === 3) {
+  } else if (n === 3) {
+    document.getElementById('questions-section').style.display = 'block';
+    stopCamera();
+  } else if (n === 4) {
     document.getElementById('result-section').style.display = 'block';
     setTimeout(() => document.getElementById('result-section').classList.add('active'), 10);
     document.getElementById('restart-row').style.display = 'block';
     buildResult();
-    stopCamera();
   }
 
   updateStepIndicator(n);
@@ -627,7 +710,7 @@ function showStep(n) {
 }
 
 function updateStepIndicator(current) {
-  for (let i = 1; i <= 3; i++) {
+  for (let i = 1; i <= 4; i++) {
     const si = document.getElementById(`si-${i}`);
     const sn = document.getElementById(`sn-${i}`);
     si.classList.remove('active', 'done');
@@ -640,6 +723,22 @@ function updateStepIndicator(current) {
 /* ── NAVIGATION ─────────────────────────────────────────── */
 function goNext(from) { showStep(from + 1); }
 function goPrev(from) { showStep(from - 1); }
+
+/* ── QUESTION SELECT ─────────────────────────────────────── */
+function selectQ(qNum, value) {
+  const keys = { 1: ['q1-a','q1-b'], 2: ['q2-a','q2-b'], 3: ['q3-a','q3-b'] };
+  keys[qNum].forEach(id => document.getElementById(id).classList.remove('on'));
+  const map = {
+    1: { '반사필름': 'q1-a', '비반사필름': 'q1-b' },
+    2: { '가성비': 'q2-a', '퀄리티': 'q2-b' },
+    3: { '주간': 'q3-a', '야간': 'q3-b' }
+  };
+  document.getElementById(map[qNum][value]).classList.add('on');
+  state[`q${qNum}`] = value;
+  document.getElementById('q-next-btn').classList.toggle(
+    'active', !!(state.q1 && state.q2 && state.q3)
+  );
+}
 
 /* ── CAMERA ─────────────────────────────────────────────── */
 async function startCamera() {
@@ -688,8 +787,12 @@ function setPreset(val) {
 
 /* ── RESULT ─────────────────────────────────────────────── */
 function buildResult() {
-  document.getElementById('result-chips').innerHTML =
-    `<span class="rs-chip"><span class="rs-chip-dot"></span>🪟 VLT ${state.vlt}%</span>`;
+  document.getElementById('result-chips').innerHTML = [
+    `<span class="rs-chip"><span class="rs-chip-dot"></span>🪟 VLT ${state.vlt}%</span>`,
+    state.q1 ? `<span class="rs-chip"><span class="rs-chip-dot"></span>${state.q1}</span>` : '',
+    state.q2 ? `<span class="rs-chip"><span class="rs-chip-dot"></span>${state.q2}</span>` : '',
+    state.q3 ? `<span class="rs-chip"><span class="rs-chip-dot"></span>${state.q3} 운전</span>` : '',
+  ].join('');
 }
 
 /* ── RESET VLT ──────────────────────────────────────────── */
@@ -698,6 +801,11 @@ function resetVLT() {
   document.getElementById('result-section').classList.remove('active');
   document.getElementById('restart-row').style.display = 'none';
   showStep(2);
+  // 카메라 재시작 UI 초기화
+  document.getElementById('density-controls').classList.remove('show');
+  document.getElementById('cam-placeholder').style.display = 'flex';
+  document.getElementById('start-cam-btn').classList.remove('hidden');
+  document.getElementById('cam-badge').style.display = 'none';
 }
 
 /* ── SNS SHARE ──────────────────────────────────────────── */
@@ -736,12 +844,14 @@ function copyURL() {
 
 /* ── RESTART ────────────────────────────────────────────── */
 function restartAll() {
-  state.vlt = 35;
+  state.vlt = 35; state.q1 = null; state.q2 = null; state.q3 = null;
   document.getElementById('density-controls').classList.remove('show');
   document.getElementById('cam-placeholder').style.display = 'flex';
   document.getElementById('start-cam-btn').classList.remove('hidden');
   document.getElementById('cam-badge').style.display = 'none';
   document.getElementById('cam-overlay').style.background = 'rgba(0,0,0,0)';
+  ['q1-a','q1-b','q2-a','q2-b','q3-a','q3-b'].forEach(id => document.getElementById(id).classList.remove('on'));
+  document.getElementById('q-next-btn').classList.remove('active');
   updateVLT(35);
   stopCamera();
   showStep(1);
