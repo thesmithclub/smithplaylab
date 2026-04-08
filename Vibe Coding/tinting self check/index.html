@@ -284,22 +284,22 @@
 
   .result-label {
     font-family: var(--font-m); font-size: 9px; letter-spacing: .18em;
-    text-transform: uppercase; color: var(--muted); margin-bottom: 10px;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 12px;
   }
-  .result-title { font-size: 18px; font-weight: 700; letter-spacing: -.02em; color: var(--black); margin-bottom: 24px; }
 
   /* summary chips */
   .result-summary {
-    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px;
+    display: flex; flex-wrap: nowrap; gap: 6px; margin-bottom: 28px;
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
   }
   .rs-chip {
-    display: inline-flex; align-items: center; gap: 6px;
-    font-family: var(--font-m); font-size: 10px; letter-spacing: .06em;
+    display: inline-flex; align-items: center; gap: 4px;
+    font-family: var(--font-m); font-size: 9px; letter-spacing: .04em;
     color: var(--body); background: var(--bg-3);
     border: 1px solid var(--line); border-radius: 99px;
-    padding: 5px 12px;
+    padding: 4px 9px; white-space: nowrap; flex-shrink: 0;
   }
-  .rs-chip-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); }
+  .rs-chip-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
 
   /* coming soon */
   .coming-soon {
@@ -629,9 +629,6 @@
   <!-- STEP 4 : 결과 -->
   <div id="result-section">
     <p class="result-label">STEP 04 · 추천 결과</p>
-    <h2 class="result-title">나의 틴팅 조건 요약</h2>
-
-    <!-- 선택 요약 -->
     <div class="result-summary" id="result-chips"></div>
 
     <!-- 필름 추천 (준비 중) -->
