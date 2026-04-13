@@ -780,8 +780,8 @@ function updateVLT(val) {
   document.getElementById('density-display').textContent = val + '% VLT';
   document.getElementById('cam-badge').textContent = 'VLT ' + val + '%';
   // VLT가 높을수록 overlay 투명하게 (5% VLT = 15% 밝기 기준으로 선형 보간)
-  const minBrightness = 0.20; // 5% VLT 기준 최소 밝기 20%
-  const maxBrightness = 0.95; // 90% VLT 기준 최대 밝기 95%
+  const minBrightness = 0.25; // 5% VLT 기준 최소 밝기 25%
+  const maxBrightness = 0.90; // 90% VLT 기준 최대 밝기 90%
   const brightness = minBrightness + (parseInt(val) - 5) / (90 - 5) * (maxBrightness - minBrightness);
   const opacity = 1 - brightness;
   document.getElementById('cam-overlay').style.background = `rgba(0,0,0,${opacity})`;
