@@ -839,14 +839,14 @@ function setPreset(val) {
 /* ── RESULT ─────────────────────────────────────────────── */
 /* ── FILM DATA ──────────────────────────────────────────── */
 const FILMS = {
-  '발키리':   { type:'반사',   price:'고가',   driving:['주간'],        brand:'바이브나인', densities:[5,15,30,40,70] },
-  '미러블루': { type:'반사',   price:'가성비', driving:['야간'],        brand:'더 스미스',  densities:[7,17,27] },
-  '미러그린': { type:'반사',   price:'가성비', driving:['야간'],        brand:'더 스미스',  densities:[10,30,40,70] },
-  '벨벳':     { type:'비반사', price:'고가',   driving:['주간'],        brand:'바이브나인', densities:[5,15,30,40,70] },
-  '볼티지':   { type:'비반사', price:'가성비', driving:['주간'],        brand:'바이브나인', densities:[5,15,35,45,70] },
-  '베가':     { type:'비반사', price:'고가',   driving:['주간'],        brand:'더 스미스',  densities:[5,15,30,45,60,70] },
-  '벨라':     { type:'비반사', price:'가성비', driving:['주간','야간'], brand:'더 스미스',  densities:[5,15,30,45,70] },
-  '델타':     { type:'비반사', price:'가성비', driving:['야간'],        brand:'더 스미스',  densities:[5,15,30,40,70] }
+  '발키리':   { type:'반사',   price:'고가',   driving:['주간'],        brand:'바이브나인', densities:[5,15,30,40,70],    img:'https://smith.speedgabia.com/playground/tinting/valk.jpg' },
+  '미러블루': { type:'반사',   price:'가성비', driving:['야간'],        brand:'더 스미스',  densities:[7,17,27],          img:'https://smith.speedgabia.com/playground/tinting/mi_b.png' },
+  '미러그린': { type:'반사',   price:'가성비', driving:['야간'],        brand:'더 스미스',  densities:[10,30,40,70],      img:'https://smith.speedgabia.com/playground/tinting/mi_g.png' },
+  '벨벳':     { type:'비반사', price:'고가',   driving:['주간'],        brand:'바이브나인', densities:[5,15,30,40,70],    img:'https://smith.speedgabia.com/playground/tinting/velvet.jpg' },
+  '볼티지':   { type:'비반사', price:'가성비', driving:['주간'],        brand:'바이브나인', densities:[5,15,35,45,70],    img:'https://smith.speedgabia.com/playground/tinting/voltage.jpg' },
+  '베가':     { type:'비반사', price:'고가',   driving:['주간'],        brand:'더 스미스',  densities:[5,15,30,45,60,70], img:'https://smith.speedgabia.com/playground/tinting/vega.png' },
+  '벨라':     { type:'비반사', price:'가성비', driving:['주간','야간'], brand:'더 스미스',  densities:[5,15,30,45,70],    img:'https://smith.speedgabia.com/playground/tinting/bella.png' },
+  '델타':     { type:'비반사', price:'가성비', driving:['야간'],        brand:'더 스미스',  densities:[5,15,30,40,70],    img:'https://smith.speedgabia.com/playground/tinting/delta.png' }
 };
 
 function getRecommendations() {
@@ -884,7 +884,7 @@ function buildResult() {
     return (
       `<div class="film-rec-card${i===0?' rank-1':i===1?' rank-2':''}">` +
         `<div class="film-img-wrap">` +
-          `<img src="images/${r.name}.jpg" alt="${r.name}"` +
+          `<img src="${r.film.img}" alt="${r.name}"` +
                ` onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` +
           `<div class="film-img-ph">🪟</div>` +
         `</div>` +
