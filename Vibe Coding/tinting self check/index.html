@@ -682,9 +682,6 @@
 
   <!-- STEP 4 : 결과 -->
   <div id="result-section">
-    <div class="nav-row" style="margin-bottom:20px;">
-      <button class="btn-prev show" onclick="goPrev(4)">← 이전으로</button>
-    </div>
     <p class="result-label">STEP 04 · 추천 결과</p>
     <div class="result-summary" id="result-chips"></div>
     <p class="result-notice">본 추천된 필름을 앱에서 추천된 내용으로 반드시 더 스미스 대리점 전문가와 상담 후 필름과 농도를 선택하세요.</p>
@@ -844,14 +841,14 @@ function setPreset(val) {
 /* ── RESULT ─────────────────────────────────────────────── */
 /* ── FILM DATA ──────────────────────────────────────────── */
 const FILMS = {
-  '발키리':   { type:'반사',   price:'고가',   driving:['주간'],        brand:'바이브나인', densities:[5,15,30,40,70] },
-  '미러블루': { type:'반사',   price:'가성비', driving:['야간'],        brand:'더 스미스',  densities:[7,17,27] },
-  '미러그린': { type:'반사',   price:'가성비', driving:['야간'],        brand:'더 스미스',  densities:[10,30,40,70] },
-  '벨벳':     { type:'비반사', price:'고가',   driving:['주간'],        brand:'바이브나인', densities:[5,15,30,40,70] },
-  '볼티지':   { type:'비반사', price:'가성비', driving:['주간'],        brand:'바이브나인', densities:[5,15,35,45,70] },
-  '베가':     { type:'비반사', price:'고가',   driving:['주간'],        brand:'더 스미스',  densities:[5,15,30,45,60,70] },
-  '벨라':     { type:'비반사', price:'가성비', driving:['주간','야간'], brand:'더 스미스',  densities:[5,15,30,45,70] },
-  '델타':     { type:'비반사', price:'가성비', driving:['야간'],        brand:'더 스미스',  densities:[5,15,30,40,70] }
+  '발키리':   { type:'반사',   price:'고가',   driving:['주간'],        brand:'바이브나인', densities:[5,15,30,40,70],    img:'https://smith.speedgabia.com/playground/tinting/valk.jpg' },
+  '미러블루': { type:'반사',   price:'가성비', driving:['야간'],        brand:'더 스미스',  densities:[7,17,27],          img:'https://smith.speedgabia.com/playground/tinting/mi_b.png' },
+  '미러그린': { type:'반사',   price:'가성비', driving:['야간'],        brand:'더 스미스',  densities:[10,30,40,70],      img:'https://smith.speedgabia.com/playground/tinting/mi_g.png' },
+  '벨벳':     { type:'비반사', price:'고가',   driving:['주간'],        brand:'바이브나인', densities:[5,15,30,40,70],    img:'https://smith.speedgabia.com/playground/tinting/velvet.jpg' },
+  '볼티지':   { type:'비반사', price:'가성비', driving:['주간'],        brand:'바이브나인', densities:[5,15,35,45,70],    img:'https://smith.speedgabia.com/playground/tinting/voltage.jpg' },
+  '베가':     { type:'비반사', price:'고가',   driving:['주간'],        brand:'더 스미스',  densities:[5,15,30,45,60,70], img:'https://smith.speedgabia.com/playground/tinting/vega.png' },
+  '벨라':     { type:'비반사', price:'가성비', driving:['주간','야간'], brand:'더 스미스',  densities:[5,15,30,45,70],    img:'https://smith.speedgabia.com/playground/tinting/bella.png' },
+  '델타':     { type:'비반사', price:'가성비', driving:['야간'],        brand:'더 스미스',  densities:[5,15,30,40,70],    img:'https://smith.speedgabia.com/playground/tinting/delta.png' }
 };
 
 function getRecommendations() {
@@ -859,7 +856,7 @@ function getRecommendations() {
   const drivingKey = state.q3 === '주간'   ? '주간' : '야간';
   return Object.entries(FILMS).map(([name, film]) => {
     let score = 0;
-    if (film.type === state.q1.replace('필름', ''))  score += 3;
+    if (film.type === state.q1)             score += 3;
     if (film.price === priceKey)            score += 2;
     if (film.driving.includes(drivingKey))  score += 1;
     return { name, film, score };
@@ -879,37 +876,39 @@ function buildResult() {
     state.q3 ? `<span class="rs-chip"><span class="rs-chip-dot"></span>${state.q3} 운전</span>` : '',
   ].join('');
 
-  const recs       = getRecommendations();
-  const rankLabels = ['1순위', '2순위', '3순위'];
+  const recs        = getRecommendations();
+  const rankLabels  = ['1순위', '2순위', '3순위'];
   const cards = recs.map((r, i) => {
-    const rec    = closestDensity(r.film.densities, state.vlt);
+    const rec = closestDensity(r.film.densities, state.vlt);
     const dChips = r.film.densities.map(d =>
       `<span class="d-chip${d === rec ? ' rec' : ''}">${d}%</span>`
     ).join('');
-    const rankClass  = i === 0 ? ' rank-1' : i === 1 ? ' rank-2' : '';
-    const badgeClass = i === 0 ? ' top' : '';
     return (
-      `<div class="film-rec-card${rankClass}">` +
+      `<div class="film-rec-card${i===0?' rank-1':i===1?' rank-2':''}">` +
         `<div class="film-card-top">` +
           `<div class="film-img-wrap">` +
-            `<img src="${r.film.img}" alt="${r.name}" ` +
-            `onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` +
+            `<img src="${r.film.img}" alt="${r.name}"` +
+                 ` onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` +
             `<div class="film-img-ph">🪟</div>` +
           `</div>` +
           `<div class="film-info">` +
             `<div class="film-rank-row">` +
-              `<span class="film-rank-badge${badgeClass}">${rankLabels[i]}</span>` +
+              `<span class="film-rank-badge${i===0?' top':''}">` + rankLabels[i] + `</span>` +
               `<span class="film-brand-text">${r.film.brand}</span>` +
             `</div>` +
             `<div class="film-name-text">${r.name}</div>` +
             `<div class="film-tags">` +
               `<span class="film-tag">${r.film.type}필름</span>` +
               `<span class="film-tag">${r.film.price}</span>` +
-              r.film.driving.map(d => `<span class="film-tag">${d}추천</span>`).join('') +
+              r.film.driving.map(d=>`<span class="film-tag">${d}추천</span>`).join('') +
             `</div>` +
           `</div>` +
         `</div>` +
         `<div class="film-card-bottom">` +
+          `<div class="film-d-label">선택 가능 농도</div>` +
+          `<div class="film-densities">${dChips}</div>` +
+        `</div>` +
+      `</div>`
           `<div class="film-d-label">선택 가능 농도</div>` +
           `<div class="film-densities">${dChips}</div>` +
         `</div>` +
@@ -919,7 +918,6 @@ function buildResult() {
   document.getElementById('film-rec-container').innerHTML =
     '<div class="film-rec-list">' + cards + '</div>';
 }
-
 
 /* ── RESET VLT ──────────────────────────────────────────── */
 function resetVLT() {
