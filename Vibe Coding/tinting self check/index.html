@@ -439,6 +439,51 @@
     .opt-grid { grid-template-columns: 1fr; }
     .section-card, #camera-section, #result-section { padding: 24px 20px; }
   }
+
+  /* ── FILM RECOMMENDATIONS ── */
+  .film-rec-list { display: flex; flex-direction: column; gap: 14px; margin-bottom: 24px; }
+  .film-rec-card {
+    background: var(--bg); border: 1.5px solid var(--line);
+    border-radius: 16px; padding: 20px; display: flex; gap: 16px;
+    align-items: flex-start;
+  }
+  .film-rec-card.rank-1 { border-color: var(--accent); background: var(--accent-dim); }
+  .film-rec-card.rank-2 { border-color: var(--line-2); }
+  .film-img-wrap {
+    width: 88px; height: 88px; flex-shrink: 0; border-radius: 12px;
+    overflow: hidden; background: var(--bg-3); border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .film-img-wrap img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .film-img-ph { font-size: 28px; opacity: .2; display: none; }
+  .film-info { flex: 1; min-width: 0; }
+  .film-rank-row { display: flex; align-items: center; gap: 7px; margin-bottom: 5px; }
+  .film-rank-badge {
+    font-family: var(--font-m); font-size: 9px; letter-spacing: .1em;
+    text-transform: uppercase; padding: 3px 8px; border-radius: 5px;
+    background: var(--bg-3); color: var(--muted); border: 1px solid var(--line);
+  }
+  .film-rank-badge.top { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .film-brand-text { font-family: var(--font-m); font-size: 9px; color: var(--muted); letter-spacing: .06em; }
+  .film-name-text { font-size: 17px; font-weight: 800; color: var(--black); letter-spacing: -.03em; margin-bottom: 7px; }
+  .film-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 10px; }
+  .film-tag {
+    font-family: var(--font-m); font-size: 9px; letter-spacing: .04em;
+    color: var(--soft); background: var(--bg-3); border: 1px solid var(--line);
+    border-radius: 4px; padding: 2px 7px;
+  }
+  .film-d-label {
+    font-family: var(--font-m); font-size: 9px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 5px;
+  }
+  .film-densities { display: flex; flex-wrap: wrap; gap: 4px; }
+  .d-chip {
+    font-family: var(--font-m); font-size: 10px; font-weight: 600;
+    border: 1px solid var(--line); border-radius: 5px; padding: 3px 9px;
+    color: var(--soft); background: var(--bg);
+  }
+  .d-chip.rec { background: var(--black); color: #fff; border-color: var(--black); }
+
   </style>
 </head>
 <body>
@@ -639,12 +684,8 @@
     <div class="result-summary" id="result-chips"></div>
     <p class="result-notice">본 추천된 필름을 앱에서 추천된 내용으로 반드시 더 스미스 대리점 전문가와 상담 후 필름과 농도를 선택하세요.</p>
 
-    <!-- 필름 추천 (준비 중) -->
-    <div class="coming-soon">
-      <div class="cs-icon">🔬</div>
-      <div class="cs-title">지금 준비 중입니다.</div>
-      <div class="cs-sub">조건에 맞는 필름 추천 데이터를 준비하고 있어요.<br>곧 업데이트될 예정입니다.</div>
-    </div>
+    <!-- 필름 추천 -->
+    <div id="film-rec-container"></div>
 
     <!-- 농도 재설정 -->
     <div class="reset-vlt-row">
@@ -796,6 +837,35 @@ function setPreset(val) {
 
 
 /* ── RESULT ─────────────────────────────────────────────── */
+/* ── FILM DATA ──────────────────────────────────────────── */
+const FILMS = {
+  '발키리':   { type:'반사',   price:'고가',   driving:['주간'],        brand:'바이브나인', densities:[5,15,30,40,70] },
+  '미러블루': { type:'반사',   price:'가성비', driving:['야간'],        brand:'더 스미스',  densities:[7,17,27] },
+  '미러그린': { type:'반사',   price:'가성비', driving:['야간'],        brand:'더 스미스',  densities:[10,30,40,70] },
+  '벨벳':     { type:'비반사', price:'고가',   driving:['주간'],        brand:'바이브나인', densities:[5,15,30,40,70] },
+  '볼티지':   { type:'비반사', price:'가성비', driving:['주간'],        brand:'바이브나인', densities:[5,15,35,45,70] },
+  '베가':     { type:'비반사', price:'고가',   driving:['주간'],        brand:'더 스미스',  densities:[5,15,30,45,60,70] },
+  '벨라':     { type:'비반사', price:'가성비', driving:['주간','야간'], brand:'더 스미스',  densities:[5,15,30,45,70] },
+  '델타':     { type:'비반사', price:'가성비', driving:['야간'],        brand:'더 스미스',  densities:[5,15,30,40,70] }
+};
+
+function getRecommendations() {
+  const priceKey   = state.q2 === '퀄리티' ? '고가' : '가성비';
+  const drivingKey = state.q3 === '주간'   ? '주간' : '야간';
+  return Object.entries(FILMS).map(([name, film]) => {
+    let score = 0;
+    if (film.type === state.q1)             score += 3;
+    if (film.price === priceKey)            score += 2;
+    if (film.driving.includes(drivingKey))  score += 1;
+    return { name, film, score };
+  }).sort((a, b) => b.score - a.score).slice(0, 3);
+}
+
+function closestDensity(densities, target) {
+  return densities.reduce((a, b) => Math.abs(b - target) < Math.abs(a - target) ? b : a);
+}
+
+
 function buildResult() {
   document.getElementById('result-chips').innerHTML = [
     `<span class="rs-chip"><span class="rs-chip-dot"></span>🪟 VLT ${state.vlt}%</span>`,
@@ -803,6 +873,40 @@ function buildResult() {
     state.q2 ? `<span class="rs-chip"><span class="rs-chip-dot"></span>${state.q2}</span>` : '',
     state.q3 ? `<span class="rs-chip"><span class="rs-chip-dot"></span>${state.q3} 운전</span>` : '',
   ].join('');
+
+  const recs        = getRecommendations();
+  const rankLabels  = ['1순위', '2순위', '3순위'];
+  const cards = recs.map((r, i) => {
+    const rec = closestDensity(r.film.densities, state.vlt);
+    const dChips = r.film.densities.map(d =>
+      `<span class="d-chip${d === rec ? ' rec' : ''}">${d}%</span>`
+    ).join('');
+    return (
+      `<div class="film-rec-card${i===0?' rank-1':i===1?' rank-2':''}">` +
+        `<div class="film-img-wrap">` +
+          `<img src="images/${r.name}.jpg" alt="${r.name}"` +
+               ` onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">` +
+          `<div class="film-img-ph">🪟</div>` +
+        `</div>` +
+        `<div class="film-info">` +
+          `<div class="film-rank-row">` +
+            `<span class="film-rank-badge${i===0?' top':''}">${rankLabels[i]}</span>` +
+            `<span class="film-brand-text">${r.film.brand}</span>` +
+          `</div>` +
+          `<div class="film-name-text">${r.name}</div>` +
+          `<div class="film-tags">` +
+            `<span class="film-tag">${r.film.type}필름</span>` +
+            `<span class="film-tag">${r.film.price}</span>` +
+            r.film.driving.map(d=>`<span class="film-tag">${d}추천</span>`).join('') +
+          `</div>` +
+          `<div class="film-d-label">선택 가능 농도</div>` +
+          `<div class="film-densities">${dChips}</div>` +
+        `</div>` +
+      `</div>`
+    );
+  }).join('');
+  document.getElementById('film-rec-container').innerHTML =
+    '<div class="film-rec-list">' + cards + '</div>';
 }
 
 /* ── RESET VLT ──────────────────────────────────────────── */
